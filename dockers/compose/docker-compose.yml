@@ -1,0 +1,33 @@
+version: "3.8"
+services:
+  mysql:
+    image: mysql:8.2
+    restart: unless-stopped
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: mlops_quicklab123%
+      MYSQL_DATABASE: mlops_quicklab
+      MYSQL_USER: mlops_quicklab
+      MYSQL_PASSWORD: mlops_quicklab123%
+    ports:
+      - "3306:3306"
+
+  fastapi-app:
+    image: kennethan/fastapi-app:1.0.0-mysql
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      CONF_DATABASE_HOSTNAME: mysql
+      CONF_DATABASE_PORT: 3306
+      CONF_DATABASE_NAME: mlops_quicklab
+      CONF_DATABASE_USER: mlops_quicklab
+      CONF_DATABASE_PASSWORD: mlops_quicklab123%
+    links:
+      - mysql
+    depends_on:
+      - mysql
+
+volumes:
+  mysql-data:
