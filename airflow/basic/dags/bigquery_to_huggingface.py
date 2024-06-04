@@ -20,10 +20,7 @@ import pandas as pd
 def dag_bigquery_to_huggingface():
     @task
     def bigquery_to_gcs(
-        dataset_id: str,
-        table_id: str,
-        gcs_bucket_name: str,
-        gcs_object_prefix: str
+        dataset_id: str, table_id: str, gcs_bucket_name: str, gcs_object_prefix: str
     ):
         bq_hook = BigQueryHook(use_legacy_sql=False)
         bq_client = bq_hook.get_client(project_id=bq_hook.project_id)
@@ -32,7 +29,9 @@ def dag_bigquery_to_huggingface():
         table_ref = dataset_ref.table(table_id)
 
         temp_name = str(uuid.uuid4())
-        destination_uri = f"gs://{gcs_bucket_name}/{gcs_object_prefix}_{temp_name}_*.csv"
+        destination_uri = (
+            f"gs://{gcs_bucket_name}/{gcs_object_prefix}_{temp_name}_*.csv"
+        )
         extract_job = bq_client.extract_table(
             table_ref,
             destination_uri,
@@ -79,24 +78,24 @@ def dag_bigquery_to_huggingface():
                 path_in_repo="train.csv",
                 repo_id=f"{hf_username}/{dataset_repo_name}",
                 repo_type="dataset",
-                token=hf_token
+                token=hf_token,
             )
 
-    gcs_bucket_name = "fast_campus_airflow"
-    gcs_object_prefix = "wikipedia_dataset_"
+    gcs_bucket_name = "mlops_airflow"
+    gcs_object_prefix = "dataset_"
 
     gcs_path = bigquery_to_gcs(
-        dataset_id="introduction",
-        table_id="wikipedia",
+        dataset_id="example",
+        table_id="gsod",
         gcs_bucket_name=gcs_bucket_name,
-        gcs_object_prefix=gcs_object_prefix
+        gcs_object_prefix=gcs_object_prefix,
     )
     register_dataset_to_huggingface(
         gcs_bucket_name=gcs_bucket_name,
         gcs_object_prefix=gcs_object_prefix,
         gcs_path=gcs_path,
-        dataset_repo_name="fast_campus_wikipedia",
+        dataset_repo_name="mlops_gsod",
     )
 
-dag_instance = dag_bigquery_to_huggingface()
 
+dag_instance = dag_bigquery_to_huggingface()

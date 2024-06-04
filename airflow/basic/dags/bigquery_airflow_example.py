@@ -19,8 +19,7 @@ dag = DAG(
 
 bq_query_task = BigQueryOperator(
     task_id="bq_query_example",
-    sql="""SELECT * FROM `fast-campus-machine-learning.introduction.wikipedia` LIMIT 100;""",
+    sql="""SELECT * FROM `bigquery-public-data.samples.github_nested`""",
     use_legacy_sql=False,
     dag=dag,
 )
-
